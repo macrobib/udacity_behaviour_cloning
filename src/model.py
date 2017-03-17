@@ -4,13 +4,14 @@ import matplotlib.pyplot as plt
 from keras.models import load_model
 from keras.models import model_from_json
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Convolution2D
+from keras.layers import Dense, Dropout, Convolution2D, ELU
 from keras.layers import Flatten, BatchNormalization
+from keras.layers.core import Lambda
 
 class model:
     """Create/Save/Load training models"""
 
-    def __init__(self, weight_path=None, weight_name, json_name):
+    def __init__(self, model_path=None, weight_name = None, json_name = None):
         self.model_weight_path = model_path + weight_name
         self.model_json_path = model_path + json_name
         self.model = None 
@@ -28,8 +29,7 @@ class model:
     def create_comma_model(self):
         """Create comma.ai model."""
         model = Sequential()
-        model.add(Lambda(lambda: x:x/127.5 - 1., input_shape=(3, 160, 320)
-                , output_shape=(3, 160, 320)))
+        model.add(Lambda(lambda x: x / 127.5 - 1., input_shape=(3, 160, 320), output_shape=(3, 160, 320)))
         model.add(ELU())
         model.add(Convolution2D(16, 8, 8, subsample=(4, 4), border_mode='same'))
         model.add(ELU())
@@ -50,7 +50,7 @@ class model:
         return model
 
 
-    def create_nvidia_model(self):
+    def create_nvidia_model(self, shape):
         """Create model based on end to end learning."""
         model = Sequential()
         model.add(BatchNormalization(epsilon=0.001, mode=2, axis=1, input_shape=(2, shape[0], shape[1])))
