@@ -25,7 +25,7 @@ prev_image_array = None
 def crop_and_resize(img, model='comma'):
     img = img[50:, :]
     if model == 'nvidia':
-        img = mc.imresize(img, (128, 128))
+        img = mc.imresize(img, (66, 200))
     else:
         img = mc.imresize(img, (160, 320))
     output = img / 127.5 - 1.0
@@ -47,7 +47,7 @@ def telemetry(sid, data):
         image_array = crop_and_resize(image_array, 'nvidia')
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
         if float(speed) < 20:
-            throttle = 0.2
+            throttle = 0.15
         else:
             throttle = 0.1
         print(steering_angle, throttle)

@@ -10,6 +10,7 @@ from collections import deque
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimage
 from sklearn.model_selection import train_test_split
+model_name = 'nvidia'
 
 class imageHandler:
     """Utility functions to handle images."""
@@ -29,6 +30,7 @@ class imageHandler:
             count = 0
             data = []
             for folder in data_folders:
+                print(folder)
                 csv_file = glob.glob(folder + '/driving_log.csv')[0]
                 with open(csv_file, 'r') as f:
                     reader = csv.reader(f)
@@ -48,7 +50,7 @@ class imageHandler:
     def crop_and_resize(self, img, model='comma'):
         img = img[50:, :]
         if model == 'nvidia':
-            img = mc.imresize(img, (128, 128))
+            img = mc.imresize(img, (66, 200))
         else:
             img = mc.imresize(img, (160, 320))
         return img
@@ -65,9 +67,16 @@ class imageHandler:
         """Load and process set of data."""
         x_data = []
         y_data = []
+        global model_name
+        data_len = offset - index
+        rand_index = None
         img_data = None
+        choice = random.randint(0, 2)
         if datatype == 'train':
             img_data = self.train[index:offset]
+            rand_index = [i for i in range(len(img_data))]
+            random.shuffle(rand_index)
+            rand_index = rand_index[0:(len(img_data) // 2)]  # 50% of the current batch size (128)
         elif datatype == 'valid':
             img_data = self.validate[index:offset]
         else:
@@ -79,19 +88,31 @@ class imageHandler:
             else:
                 img = cv2.imread(row[1])
             steer_angle = float(row[2])
+
+            if datatype == 'train':
+                if choice == 0:
+                    img, steer_angle = self.random_shear(img, steer_angle)
+                elif choice == 1:
+                    img = self.flip_image(img)
+                    steer_angle = -steer_angle
+
             if row[0] == 'left':
-                steer_angle += 0.2
-                img = self.crop_and_resize(img, 'nvidia')
+                steer_angle += 0.1
+                img = self.crop_and_resize(img, model_name)
             elif row[0] == 'right':
-                steer_angle -= 0.2
-                img = self.crop_and_resize(img, 'nvidia')
+                steer_angle -= 0.1
+                img = self.crop_and_resize(img, model_name)
             else:
-                img = self.crop_and_resize(img, 'nvidia')
+                img = self.crop_and_resize(img, model_name)
             if img is None:
                 raise ValueError
             img = img/127.5 - 1.0
             x_data.append(img)
             y_data.append(steer_angle)
+        if datatype == 'train':
+            for index in rand_index:
+                if choice == 2:
+                        x_data[index], y_data[index] = self.jitter_image_rotation(x_data[index], y_data[index])
         return np.asarray(x_data), np.asarray(y_data)
 
     def get_training_batch(self, batch_size=128):
@@ -165,6 +186,36 @@ class imageHandler:
 
     def get_data_count(self):
         return self.data_count
+
+    def jitter_image_rotation(self, image, steering):
+        """Translation based jitter to image."""
+        #https://github.com/vxy10/ImageAugmentation
+        rows, cols, _ = image.shape
+        range = 100
+        numPixels = 10
+        valPixels = 0.4
+        transX = range * np.random.uniform() - range / 2
+        steering +=  transX / range * 2 * valPixels
+        transY = numPixels * np.random.uniform() - numPixels / 2
+        transMat = np.float32([[1, 0, transX], [0, 1, transY]])
+        image = cv2.warpAffine(image, transMat, (cols, rows))
+        return image, steering
+
+    def random_shear(self, image, steering_angle, shear_range=200):
+        """
+         https://medium.com/@ksakmann/behavioral-cloning-make-a-car-drive-like-yourself-dc6021152713#.7k8vfppvk
+        """
+        rows, cols, ch = image.shape
+        dx = np.random.randint(-shear_range, shear_range + 1)
+        random_point = [cols / 2 + dx, rows / 2]
+        pts1 = np.float32([[0, rows], [cols, rows], [cols / 2, rows / 2]])
+        pts2 = np.float32([[0, rows], [cols, rows], random_point])
+        dsteering = dx / (rows / 2) * 360 / (2 * np.pi * 25.0) / 6.0
+        M = cv2.getAffineTransform(pts1, pts2)
+        image = cv2.warpAffine(image, M, (cols, rows), borderMode=1)
+        steering_angle += dsteering
+        return image, steering_angle
+
 
 
 
