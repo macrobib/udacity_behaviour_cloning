@@ -96,7 +96,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with open(args.model, 'r') as f:
-        model = model_from_json(f.read())
+        json_string = f.read()
+        print(json_string)
+        model = model_from_json(json_string)
     model.compile("adam", "mse")
     weights = args.model.replace('json', 'h5')
     model.load_weights(weights)
