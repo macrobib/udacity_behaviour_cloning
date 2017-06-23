@@ -47,7 +47,7 @@ def telemetry(sid, data):
         image_array = crop_and_resize(image_array, 'nvidia')
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
         if float(speed) < 20:
-            throttle = 0.15
+            throttle = 0.13
         else:
             throttle = 0.1
         print(steering_angle, throttle)
