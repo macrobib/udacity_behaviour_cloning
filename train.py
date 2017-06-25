@@ -66,51 +66,57 @@ def comma_model():
 
 def nvidia_model():
     model = Sequential()
+
     # model.add(BatchNormalization(input_shape=(66, 200, 3)))
     # model.add(Convolution2D(24, 5, 5, border_mode='same', subsample=(2, 2)))
-    model.add(Convolution2D(24, 5, 5, input_shape=(66, 200, 3), border_mode='same', subsample=(2, 2)))
+    model.add(Convolution2D(24, 5, 5, input_shape=(66, 200, 3), border_mode='same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
-    model.add(Dropout(0.2))
+    # model.add(Dropout(0.2))
 
     model.add(Convolution2D(36, 5, 5, border_mode='same', subsample=(2, 2)))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
-    model.add(Dropout(0.2))
+    # model.add(Dropout(0.2))
 
     model.add(Convolution2D(48, 3, 3, border_mode='same', subsample=(2, 2)))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
-    model.add(Dropout(0.2))
+    # model.add(Dropout(0.4))
 
     model.add(Convolution2D(64, 3, 3, border_mode='same', subsample=(1, 1)))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
-    model.add(Dropout(0.2))
+    # model.add(Dropout(0.4))
 
     model.add(Convolution2D(64, 3, 3, border_mode='same', subsample=(1, 1)))
+    model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
-    # model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
-    #
     model.add(Flatten())
+    model.add(Dropout(0.5))
+
     model.add(Dense(1164))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
+
     model.add(Dense(100))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
+
     model.add(Dense(50))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     # model.add(Dropout(0.2))
+
     model.add(Dense(10))
+    model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(Dense(1))
     model.compile(optimizer=Adam(learn_rate), loss="mse")
@@ -122,45 +128,54 @@ def nvidia_model_2():
     model = Sequential()
     # model.add(BatchNormalization(input_shape=(66, 200, 3)))
     # model.add(Convolution2D(24, 5, 5, border_mode='same', subsample=(2, 2)))
-    model.add(Convolution2D(24, 5, 5, input_shape=(66, 200, 3), border_mode='same', subsample=(2, 2)))
-    model.add(Activation('relu'))
-    # model.add(BatchNormalization())
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
-    model.add(Dropout(0.5))
-
+    model.add(Convolution2D(24, 5, 5, input_shape=(66, 200, 3), border_mode='same',
+                            subsample=(2, 2), kernel_initializer='he_normal', bias_initializer='zeros'))
     model.add(BatchNormalization())
-    model.add(Convolution2D(36, 5, 5, border_mode='same', subsample=(2, 2)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
     model.add(Dropout(0.5))
 
+    model.add(Convolution2D(36, 5, 5, border_mode='same', subsample=(2, 2),
+                            kernel_initializer='he_normal', bias_initializer='zeros'))
     model.add(BatchNormalization())
-    model.add(Convolution2D(48, 3, 3, border_mode='same', subsample=(2, 2)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.4))
 
+    model.add(Convolution2D(48, 3, 3, border_mode='same', subsample=(2, 2),
+                            kernel_initializer='he_normal', bias_initializer='zeros'))
     model.add(BatchNormalization())
-    model.add(Convolution2D(64, 3, 3, border_mode='same', subsample=(1, 1)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
-    # model.add(BatchNormalization())
-    model.add(Dropout(0.5))
-    model.add(Convolution2D(64, 3, 3, border_mode='same', subsample=(1, 1)))
+    model.add(Dropout(0.4))
+
+    model.add(Convolution2D(64, 3, 3, border_mode='same', subsample=(1, 1),
+                            kernel_initializer='he_normal', bias_initializer='zeros'))
+    model.add(BatchNormalization())
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+    model.add(Dropout(0.4))
+
+    model.add(Convolution2D(64, 3, 3, border_mode='same', subsample=(1, 1),
+                            kernel_initializer='he_normal', bias_initializer='zeros'))
     model.add(Activation('relu'))
     # model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1)))
+    #
     model.add(Flatten())
-    model.add(Dropout(0.5))
-    model.add(Dense(1164))
+    model.add(Dense(1164, kernel_initializer='he_normal', bias_initializer='zeros'))
+    model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(100))
+    model.add(Dense(100, kernel_initializer='he_normal', bias_initializer='zeros'))
+    model.add(BatchNormalization())
     model.add(Activation('relu'))
-    model.add(Dropout(0.3))
-    model.add(Dense(50))
+    model.add(Dropout(0.5))
+    model.add(Dense(50, kernel_initializer='he_normal', bias_initializer='zeros'))
+    model.add(BatchNormalization())
     model.add(Activation('relu'))
-    # model.add(Dropout(0.5))
-    model.add(Dense(10))
+    # model.add(Dropout(0.2))
+    model.add(Dense(10, kernel_initializer='he_normal', bias_initializer='zeros'))
     model.add(Activation('relu'))
     model.add(Dense(1))
     model.compile(optimizer=Adam(learn_rate), loss="mse")
@@ -172,7 +187,7 @@ model = nvidia_model()
 early_stopping = EarlyStopping(monitor='val_loss', patience=2, min_delta=0.0002, mode='min')
 train_samples = data_count[0] - data_count[0]%128
 val_samples = data_count[1] - data_count[1]%128
-hist = model.fit_generator(generator=imgH.get_training_batch(), samples_per_epoch=train_samples, nb_epoch=12,
+hist = model.fit_generator(generator=imgH.get_training_batch(), samples_per_epoch=train_samples, nb_epoch=20,
                                      validation_data=imgH.get_validation_batch(), nb_val_samples=val_samples, callbacks=[early_stopping])
 
 plot(model, to_file='model.png', show_shapes=True)

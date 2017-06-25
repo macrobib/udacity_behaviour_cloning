@@ -89,12 +89,12 @@ class imageHandler:
                 img = cv2.imread(row[1])
             steer_angle = float(row[2])
 
-            if datatype == 'train':
-                if choice == 0:
-                    img, steer_angle = self.random_shear(img, steer_angle)
-                elif choice == 1:
-                    img = self.flip_image(img)
-                    steer_angle = -steer_angle
+            # if datatype == 'train':
+            #     if choice == 0:
+            #         img, steer_angle = self.random_shear(img, steer_angle)
+            #     elif choice == 1:
+            #         img = self.flip_image(img)
+            #         steer_angle = -steer_angle
 
             if row[0] == 'left':
                 steer_angle += 0.1
@@ -109,10 +109,10 @@ class imageHandler:
             img = img/127.5 - 1.0
             x_data.append(img)
             y_data.append(steer_angle)
-        if datatype == 'train':
-            for index in rand_index:
-                if choice == 2:
-                        x_data[index], y_data[index] = self.jitter_image_rotation(x_data[index], y_data[index])
+        # if datatype == 'train':
+        #     for index in rand_index:
+        #         if choice == 2:
+        #                 x_data[index], y_data[index] = self.jitter_image_rotation(x_data[index], y_data[index])
         return np.asarray(x_data), np.asarray(y_data)
 
     def get_training_batch(self, batch_size=128):
@@ -143,7 +143,7 @@ class imageHandler:
         self.steering = self.steering[index]
         self.train, self.validate, self.steering, self.validate_steering = train_test_split(self.train, self.steering
                                                                                             , test_size=0.2,
-                                                                                            random_state=42)
+                                                                                            random_state=random.randint(0, 1000))
 
     def angle_correction(self,img,  val):
         """Add angle correction values."""
